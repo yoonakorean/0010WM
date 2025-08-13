@@ -99,7 +99,7 @@
   <div id="game-container" class="hidden">
     <img src="logo.png" alt="Logo" id="logo" />
     <div id="game-title">0-10 單字聽音辨義測驗</div>
-    <p id="question-number">第 1 題 / 共 12 題</p>
+    <p id="question-number">第 1 題 / 共 67 題</p>
     <p id="timer">剩餘時間：-- 秒</p>
 
     <audio id="audio" controls></audio>
@@ -121,7 +121,6 @@
 
       <br />
       <button id="submit-btn" onclick="submitToGoogle()">提交成績</button>
-      <!-- 下載成績按鈕已移除 -->
       <button id="restart-btn">重新開始</button>
       <button onclick="goBackToModeSelect()">回到模式選擇</button>
     </div>
@@ -305,10 +304,7 @@
         btn.textContent = choice;
         btn.className = "choice-btn";
         btn.onclick = () => {
-          // 如果倒數沒開始，點選選項時啟動倒數
-          if (!timerStarted && mode === "test") {
-            startTimer();
-          }
+          if (!timerStarted && mode === "test") startTimer();
 
           const correctAnswer = q.word;
           const selectedAnswer = choice;
@@ -334,11 +330,8 @@
           nextBtn.disabled = false;
           document.querySelectorAll("#choices .choice-btn").forEach((b) => {
             b.disabled = true;
-            if (b.textContent === correctAnswer) {
-              b.style.backgroundColor = "#8f8";
-            } else if (b.textContent === selectedAnswer) {
-              b.style.backgroundColor = "#f88";
-            }
+            if (b.textContent === correctAnswer) b.style.backgroundColor = "#8f8";
+            else if (b.textContent === selectedAnswer) b.style.backgroundColor = "#f88";
           });
         };
         choicesDiv.appendChild(btn);
@@ -347,9 +340,8 @@
 
     nextBtn.onclick = () => {
       current++;
-      if (current < shuffledQuestions.length) {
-        loadQuestion();
-      } else {
+      if (current < shuffledQuestions.length) loadQuestion();
+      else {
         if (mode === "test") clearInterval(timerId);
         showResult();
       }
@@ -373,14 +365,11 @@
 
       if (mode === "practice") {
         passFailText.textContent = "🔍 練習模式結束";
-
         nicknameInput.style.display = "none";
         exampleNote.style.display = "none";
         submitNote.style.display = "none";
-
         practiceMessage.style.display = "block";
         practiceMessage.innerHTML = "可重複練習～<br>最後記得要去挑戰模式挑戰後回傳合格成績歐！！";
-
         submitBtn.disabled = true;
         document.getElementById("submit-time").textContent = `花費時間：${spentSeconds} 秒`;
         return;
@@ -417,9 +406,7 @@
     }
 
     audioEl.addEventListener("play", () => {
-      if (!timerStarted && mode === "test") {
-        startTimer();
-      }
+      if (!timerStarted && mode === "test") startTimer();
     });
 
     function submitToGoogle() {
@@ -430,10 +417,9 @@
       }
 
       const score = Math.round((correct / shuffledQuestions.length) * 100);
-      const now = new Date();
-      const time = now.toLocaleString("zh-TW");
+      const spentSeconds = Math.floor((Date.now() - startTime) / 1000); // 花費時間
       const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-      const weekday = weekdays[now.getDay()];
+      const weekday = weekdays[new Date().getDay()];
 
       const answerLogText = answerLog.map(item => {
         const status = item.isCorrect ? "正確" : "錯誤";
@@ -444,10 +430,9 @@
       const formData = new FormData();
       formData.append("entry.1082970818", nickname);
       formData.append("entry.851626887", score);
-      formData.append("entry.498226528", time);
+      formData.append("entry.498226528", spentSeconds + " 秒"); // 回傳花費時間
       formData.append("entry.532888754", weekday);
       formData.append("entry.1110600272", gameTitle);
-
 
       fetch(formURL, { method: "POST", mode: "no-cors", body: formData })
         .then(() => alert("成績已回傳！可重複挑戰。"))
