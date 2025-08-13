@@ -98,7 +98,7 @@
       { word: "바나나", audio: "audio/000312W.mp3", choices: ["바나나", "바나라", "바마나"] }
     ];
 
-    let shuffledQuestions = [...questions].sort(() => 0.5 - Math.random());
+    let shuffledQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, 25);
     let current = 0;
     let correct = 0;
 
